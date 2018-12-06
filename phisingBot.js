@@ -23,7 +23,8 @@ phishingBot.on('message', (msg) => {
         }
 
         else if (msgText === getGithubLink) {
-            phishingBot.sendMessage(msg.chat.id, 'this is my github link');
+            phishingBot.sendMessage(msg.chat.id, 'this is my github link-\n' +
+                'https://github.com/UrielShimony/TelegramPhishingBot');
         }
 
         else if (TPU.isValidURL(msgText.toLowerCase())) {
