@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./phisingBot"
+    "start": "node ./phishingBot"
   },
   "dependencies": {
     "axios": "^0.18.0",

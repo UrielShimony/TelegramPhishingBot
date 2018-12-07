@@ -87,5 +87,12 @@ phishingBot.on('message', (msg) => {
             // Sticker/Image  Case:
             sendMessage(defaultMsg, chatID)
         }
-    }
-);
+    });
+
+// Because deployment issues (must listen to some port)
+var http = require('http');
+const port = process.env.PORT
+http.createServer(function (req, res) {
+  res.send(200);
+}).listen(port);
+
