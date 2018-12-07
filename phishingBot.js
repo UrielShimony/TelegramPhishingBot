@@ -27,72 +27,81 @@ function sendSticker(sticker, chatID) {
 }
 
 phishingBot.on('message', (msg) => {
-        const chatID = msg.chat.id;
-        if (msg.text) {
-            const msgText = msg.text.toString();
-            console.log('Incoming message :', msgText);
+    const chatID = msg.chat.id;
+    if (msg.text) {
+        const msgText = msg.text.toString();
+        console.log('Incoming message :', msgText);
 
-            if (msgText === '/start' || msgText === '/hello') {
-                const msgToSend = 'Hi, What do you want to do??';
-                sendMessage(msgToSend, chatID, {
-                    reply_markup: {
-                        keyboard: [[getGithubLink], [validateUrl]]
+        if (msgText === '/start' || msgText === '/hello') {
+            const msgToSend = 'Hi, What do you want to do??';
+            sendMessage(msgToSend, chatID, {
+                reply_markup: {
+                    keyboard: [[getGithubLink], [validateUrl]]
+                }
+            })
+        }
+
+        else if (msgText === getGithubLink) {
+            const msgToSend = 'this is my github link-\n' +
+                'https://github.com/UrielShimony/TelegramPhishingBot';
+            sendMessage(msgToSend, chatID)
+        }
+
+        else if (msgText === validateUrl) {
+            const msgToSend = 'So Paste the link :)';
+            sendMessage(msgToSend, chatID);
+        }
+
+        else if (TPU.isValidURL(msgText.toLowerCase())) {
+            console.log('URL is valid.');
+            const URL = msgText;
+            phishTankAPI.getURLProfile(URL)
+                .then(URLprofile => {
+                    console.log('Phistank Profile Result- ', URLprofile);
+                    if (URLprofile.isVerified && !URLprofile.isValid) {
+                        const msgToSend = 'This URL is OK!';
+                        sendSticker('happySticker', chatID);
+                        sendMessage(msgToSend, chatID);
+                    }
+                    else if (URLprofile.isVerified && URLprofile.isValid) {
+                        const msgToSend = 'Be careful this is a PHISHING SCAM!!';
+                        sendSticker('angrySticker', chatID);
+                        sendMessage(msgToSend, chatID);
+                    }
+                    else {
+                        const msgToSend = "Unfortunately PhishTank can't decide on this one";
+                        sendMessage(msgToSend, chatID);
                     }
                 })
-            }
-
-            else if (msgText === getGithubLink) {
-                const msgToSend = 'this is my github link-\n' +
-                    'https://github.com/UrielShimony/TelegramPhishingBot';
-                sendMessage(msgToSend, chatID)
-            }
-
-            else if (msgText === validateUrl) {
-                const msgToSend = 'So Paste the link :)';
-                sendMessage(msgToSend, chatID);
-            }
-
-            else if (TPU.isValidURL(msgText.toLowerCase())) {
-                console.log('URL is valid.');
-                const URL = msgText;
-                phishTankAPI.getURLProfile(URL)
-                    .then(URLprofile => {
-                        console.log('Phistank Profile Result- ', URLprofile);
-                        if (URLprofile.isVerified && !URLprofile.isValid) {
-                            const msgToSend = 'This URL is OK!';
-                            sendSticker('happySticker', chatID);
-                            sendMessage(msgToSend, chatID);
-                        }
-                        else if (URLprofile.isVerified && URLprofile.isValid) {
-                            const msgToSend = 'Be careful this is a PHISHING SCAM!!';
-                            sendSticker('angrySticker', chatID);
-                            sendMessage(msgToSend, chatID);
-                        }
-                        else {
-                            const msgToSend = "Unfortunately PhishTank can't decide on this one";
-                            sendMessage(msgToSend, chatID);
-                        }
-                    })
-                    .catch(err => {
-                        console.log('EROR', err);
-                        const msgToSend = 'Unfortunately there was an error, pleas try again';
-                        sendMessage(msgToSend, chatID);
-                    });
-            }else{
-                //Default Case:
-                console.log('The income Text is not valid URL');
-                sendMessage(defaultMsg, chatID)
-            }
-        }else{
-            // Sticker/Image  Case:
+                .catch(err => {
+                    console.log('EROR', err);
+                    const msgToSend = 'Unfortunately there was an error, pleas try again';
+                    sendMessage(msgToSend, chatID);
+                });
+        } else {
+            //Default Case:
+            console.log('The income Text is not valid URL');
             sendMessage(defaultMsg, chatID)
         }
-    });
+    } else {
+        // Sticker/Image  Case:
+        sendMessage(defaultMsg, chatID)
+    }
+});
 
-// Because deployment issues (must listen to some port)
+
+// Handle deployment issues
 var http = require('http');
-const port = process.env.PORT
+const port = process.env.PORT;
 http.createServer(function (req, res) {
-  res.send(200);
+    //(must listen to some port)
+    res.send(200);
 }).listen(port);
 
+phishingBot.on('polling_error', (error) => {
+    if (error.code === 'ETELEGRAM') {
+        //More then one instance is up or  server ip had changed.
+    } else {
+        console.log('ERROR', error.code);
+    }
+});
