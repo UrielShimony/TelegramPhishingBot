@@ -10,8 +10,11 @@ module.exports = {
                 url: url,
             }
         };
+        console.log(`send Get request to ${BASE_PHISHTANK_URL} with params: ${body}`);
         return axios.get(BASE_PHISHTANK_URL, body)
             .then(function (response) {
+                console.log('Response Data- ', response.data);
+
                 const jsonData = TPU.parseXML2Json(response.data);
 
                 const preciousData = jsonData.response.results.url0;

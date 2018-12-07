@@ -5,10 +5,12 @@ const urlRegex = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[
 module.exports = {
 
     isValidURL: function (str) {
+        console.log('Validate url syntax');
         return str.match(urlRegex);
     },
 
     parseXML2Json: function (XMLString) {
+        console.log('parsing XML');
         let jsonString='';
         parseXML(XMLString, {explicitArray: false}, (err, parsedString) => {
             if (err) {
